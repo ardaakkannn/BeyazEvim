@@ -2,6 +2,7 @@ package com.ardakkan.backend.service;
 
 
 import com.ardakkan.backend.entity.ProductModel;
+import com.ardakkan.backend.dto.ProductModelDTO;
 import com.ardakkan.backend.entity.ProductInstance;
 import com.ardakkan.backend.entity.ProductInstanceStatus;
 import com.ardakkan.backend.repo.ProductModelRepository;
@@ -10,8 +11,10 @@ import com.ardakkan.backend.repo.ProductInstanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductModelService {
@@ -100,6 +103,27 @@ public class ProductModelService {
         } else {
             throw new RuntimeException("ProductModel not found with id: " + productModelId);
         }
+    }
+    
+    public List<ProductModelDTO> getRandomProductModels() {
+        List<ProductModel> allProducts = productModelRepository.findAll(); // Tüm ürünleri çek
+        Collections.shuffle(allProducts); // Ürünleri karıştır
+        
+        // İlk 16 ürünü al ve DTO'ya dönüştür
+        return allProducts.stream()
+                .limit(16)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // ProductModel -> ProductModelDTO dönüşümü
+    private ProductModelDTO convertToDTO(ProductModel productModel) {
+        ProductModelDTO dto = new ProductModelDTO();
+        dto.setId(productModel.getId());
+        dto.setName(productModel.getName());
+        dto.setDescription(productModel.getDescription());
+        dto.setPrice(productModel.getPrice());
+        return dto;
     }
 
 }

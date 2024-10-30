@@ -1,5 +1,6 @@
 package com.ardakkan.backend.controller;
 
+import com.ardakkan.backend.dto.RegisterRequest;
 import com.ardakkan.backend.dto.UserDTO;
 import com.ardakkan.backend.entity.User;
 import com.ardakkan.backend.service.UserService;
@@ -21,11 +22,15 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Yeni bir kullanıcı kaydet
+ // Yeni kullanıcı kaydı
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
-        User savedUser = userService.saveUser(user);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
+        try {
+            userService.registerUser(registerRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Kullanıcı başarıyla kaydedildi.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Kayıt başarısız: " + e.getMessage());
+        }
     }
 
     // ID ile kullanıcıyı getir

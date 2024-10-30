@@ -1,5 +1,6 @@
 package com.ardakkan.backend.service;
 
+import com.ardakkan.backend.dto.RegisterRequest;
 import com.ardakkan.backend.dto.UserDTO;
 import com.ardakkan.backend.entity.User;
 import com.ardakkan.backend.entity.ProductModel;
@@ -29,20 +30,22 @@ public class UserService {
         this.passwordEncoder = passwordEncoder; // PasswordEncoder'ı inject ediyoruz
     }
 
-    // DTO olmadan kullanıcıyı kaydetme işlemi
-    public User saveUser(User user) {
-        // Aynı email ile başka bir kullanıcı olup olmadığını kontrol ediyoruz
-        Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
-        if (existingUser.isPresent()) {
-            throw new IllegalStateException("Email zaten kullanılıyor: " + user.getEmail());
+    public void registerUser(RegisterRequest registerRequest) {
+        // email zaten kayıtlı mı kontrol et
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new IllegalStateException("Email zaten kayıtlı.");
         }
 
-        // Şifreyi hash'liyoruz
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword); // Hashlenmiş şifreyi kullanıcıya set ediyoruz
+        // Şifreyi hashleyin
+        String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
 
-        // Kullanıcıyı kaydediyoruz ve direkt olarak User entity dönüyoruz
-        return userRepository.save(user);
+        // Yeni kullanıcı oluşturun ve kaydedin
+        User user = new User();
+        user.setName(registerRequest.getName());
+        user.setPassword(encodedPassword);
+        user.setEmail(registerRequest.getEmail());
+
+        userRepository.save(user);
     }
 
 
