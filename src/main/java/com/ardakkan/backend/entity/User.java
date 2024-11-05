@@ -20,10 +20,10 @@ public class User {
     private Long id;
 
     @Column(nullable = false, length = 45)
-    private String FirstName;
+    private String firstName;
     
     @Column(nullable = false, length = 45)
-    private String LastName;
+    private String lastName;
 
     @Column(nullable = false, length = 45, unique = true)
     private String email;
@@ -41,7 +41,7 @@ public class User {
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private UserRoles role;
 
     // User'in siparişleri (Order) ile ilişkisi: Bir kullanıcı birçok sipariş verebilir
@@ -68,19 +68,19 @@ public class User {
     
 
     public String getFirstName() {
-		return FirstName;
+		return firstName;
 	}
 
 	public void setFirstName(String firstName) {
-		FirstName = firstName;
+		this.firstName = firstName;
 	}
 
 	public String getLastName() {
-		return LastName;
+		return lastName;
 	}
 
 	public void setLastName(String lastName) {
-		LastName = lastName;
+		this.lastName = lastName;
 	}
 
 	public String getEmail() {

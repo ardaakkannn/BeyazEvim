@@ -32,21 +32,40 @@ public class UserService {
     }
 
     public void registerUser(RegisterRequest registerRequest) {
+        // Önce gerekli alanların dolu olup olmadığını kontrol ediyoruz
+        if (registerRequest.getFirstName() == null || registerRequest.getFirstName().isEmpty()) {
+            throw new IllegalArgumentException("First name boş olamaz.");
+        }
+        if (registerRequest.getLastName() == null || registerRequest.getLastName().isEmpty()) {
+            throw new IllegalArgumentException("Last name boş olamaz.");
+        }
+        if (registerRequest.getPassword() == null || registerRequest.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Password boş olamaz.");
+        }
+        if (registerRequest.getEmail() == null || registerRequest.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("Email boş olamaz.");
+        }
+
+        // Emailin zaten kayıtlı olup olmadığını kontrol ediyoruz
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new IllegalStateException("Email zaten kayıtlı.");
         }
 
+        // Şifreyi encode ediyoruz
         String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
 
+        // Yeni kullanıcı oluşturuyoruz
         User user = new User();
         user.setFirstName(registerRequest.getFirstName());
         user.setLastName(registerRequest.getLastName());
         user.setPassword(encodedPassword);
         user.setEmail(registerRequest.getEmail());
-        user.setRole(UserRoles.ROLE_CUSTOMER);
+        user.setRole(UserRoles.CUSTOMER);
 
+        // Kullanıcıyı veritabanına kaydediyoruz
         userRepository.save(user);
     }
+
 
     public UserDTO findUserById(Long id) {
         User user = userRepository.findById(id)

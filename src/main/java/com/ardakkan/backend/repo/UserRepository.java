@@ -11,7 +11,10 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Long> {
     // Özel bir sorgu: Kullanıcıyı email ile bulmak
 	Optional<User> findByEmail(String email);
-	Optional<User> findByName(String username);
-	boolean existsByName(String name);
+	// Eğer 'firstName' veya 'lastName' gibi alanlar varsa
+	Optional<User> findByFirstName(String firstName);
+	Optional<User> findByLastName(String lastName);
+	boolean existsByFirstName(String firstName);
+	boolean existsByLastName(String lastName);
     boolean existsByEmail(String email);
 }
