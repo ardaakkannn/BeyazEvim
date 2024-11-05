@@ -3,11 +3,12 @@ package com.ardakkan.backend.service;
 import com.ardakkan.backend.dto.RegisterRequest;
 import com.ardakkan.backend.dto.UserDTO;
 import com.ardakkan.backend.entity.User;
+import com.ardakkan.backend.entity.UserRoles;
 import com.ardakkan.backend.entity.ProductModel;
 import com.ardakkan.backend.repo.UserRepository;
 import com.ardakkan.backend.repo.ProductModelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder; // Şifre hashleme için
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,35 +20,33 @@ import java.util.stream.Collectors;
 @Transactional
 public class UserService {
 
-	private final UserRepository userRepository;
+    private final UserRepository userRepository;
     private final ProductModelRepository productModelRepository;
-    private final PasswordEncoder passwordEncoder; // Şifre hashlemek için
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepository userRepository, ProductModelRepository productModelRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.productModelRepository = productModelRepository;
-        this.passwordEncoder = passwordEncoder; // PasswordEncoder'ı inject ediyoruz
+        this.passwordEncoder = passwordEncoder;
     }
 
     public void registerUser(RegisterRequest registerRequest) {
-        // email zaten kayıtlı mı kontrol et
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new IllegalStateException("Email zaten kayıtlı.");
         }
 
-        // Şifreyi hashleyin
         String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
 
-        // Yeni kullanıcı oluşturun ve kaydedin
         User user = new User();
-        user.setName(registerRequest.getName());
+        user.setFirstName(registerRequest.getFirstName());
+        user.setLastName(registerRequest.getLastName());
         user.setPassword(encodedPassword);
         user.setEmail(registerRequest.getEmail());
+        user.setRole(UserRoles.ROLE_CUSTOMER);
 
         userRepository.save(user);
     }
-
 
     public UserDTO findUserById(Long id) {
         User user = userRepository.findById(id)
@@ -63,56 +62,52 @@ public class UserService {
                 .collect(Collectors.toList());
     }
     
- // Kullanıcının wishlist'ini güncelleme
     public void updateWishlist(Long userId, List<Long> wishlistProductModelIds) {
-        User user = convertToEntity(findUserById(userId)); // Kullanıcıyı buluyoruz
+        User user = convertToEntity(findUserById(userId));
         List<ProductModel> wishlist = wishlistProductModelIds.stream()
-                .map(productModelRepository::findById)  // ID ile ProductModel çekiyoruz
-                .map(Optional::get) // Optional'dan çıkarıyoruz (boş gelirse exception atacak)
+                .map(productModelRepository::findById)
+                .map(Optional::get)
                 .collect(Collectors.toList());
-        user.setWishlist(wishlist); // Kullanıcının wishlist'ini güncelliyoruz
-        userRepository.save(user);  // Güncellenmiş kullanıcıyı kaydediyoruz
+        user.setWishlist(wishlist);
+        userRepository.save(user);
     }
 
-    // Entity'yi DTO'ya dönüştür (wishlist ile birlikte)
     private UserDTO convertToDTO(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
-        userDTO.setName(user.getName());
+        userDTO.setFirstName(user.getFirstName());
+        userDTO.setLastName(user.getLastName());
         userDTO.setEmail(user.getEmail());
         userDTO.setAddress(user.getAddress());
         userDTO.setPhoneNumber(user.getPhoneNumber());
         userDTO.setRole(user.getRole());
 
-        // ProductModel ID'lerini al
         List<Long> wishlistIds = user.getWishlist()
                 .stream()
-                .map(ProductModel::getId) // Sadece ID'leri alıyoruz
+                .map(ProductModel::getId)
                 .collect(Collectors.toList());
         userDTO.setWishlist(wishlistIds);
 
         return userDTO;
     }
 
-    // DTO'yu Entity'ye dönüştür (wishlist ile birlikte)
     private User convertToEntity(UserDTO userDTO) {
         User user = new User();
         user.setId(userDTO.getId());
-        user.setName(userDTO.getName());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
         user.setEmail(userDTO.getEmail());
         user.setAddress(userDTO.getAddress());
         user.setPhoneNumber(userDTO.getPhoneNumber());
         user.setRole(userDTO.getRole());
 
-        // ProductModel ID'lerinden entity'leri çek
         List<ProductModel> wishlist = userDTO.getWishlist()
                 .stream()
-                .map(productModelRepository::findById)  // ID ile ProductModel çekiyoruz
-                .map(Optional::get) // Optional'dan çıkarıyoruz
+                .map(productModelRepository::findById)
+                .map(Optional::get)
                 .collect(Collectors.toList());
         user.setWishlist(wishlist);
 
         return user;
     }
-    
 }

@@ -20,7 +20,10 @@ public class User {
     private Long id;
 
     @Column(nullable = false, length = 45)
-    private String name;
+    private String FirstName;
+    
+    @Column(nullable = false, length = 45)
+    private String LastName;
 
     @Column(nullable = false, length = 45, unique = true)
     private String email;
@@ -62,15 +65,25 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
+    
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getFirstName() {
+		return FirstName;
+	}
 
-    public String getEmail() {
+	public void setFirstName(String firstName) {
+		FirstName = firstName;
+	}
+
+	public String getLastName() {
+		return LastName;
+	}
+
+	public void setLastName(String lastName) {
+		LastName = lastName;
+	}
+
+	public String getEmail() {
         return email;
     }
 

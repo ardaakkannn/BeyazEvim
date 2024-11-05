@@ -29,27 +29,27 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // İzin verilen rotalar için JWT doğrulamasını atla
         String requestPath = request.getServletPath();
-        if (requestPath.startsWith("/login") || requestPath.startsWith("/register") || requestPath.startsWith("/homepage")) {
+        if (requestPath.startsWith("/login") || requestPath.startsWith("/register") || requestPath.startsWith("/homepage")|| requestPath.startsWith("/sendMail")) {
             filterChain.doFilter(request, response);
             return; // Bu isteği daha fazla filtreleme yapmadan devam ettiriyoruz
         }
 
         final String authorizationHeader = request.getHeader("Authorization");
 
-        String username = null;
+        String email = null;
         String jwt = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7); // "Bearer " kısmını çıkarıyoruz
-            username = tokenService.extractUsername(jwt); // Token'dan kullanıcı adını çıkarıyoruz
+            email = tokenService.extractEmail(jwt); // Token'dan email'i çıkarıyoruz
         }
 
-        // Eğer username mevcut ve kullanıcı daha önce doğrulanmamışsa
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            var userDetails = this.userDetailsService.loadUserByUsername(username);
+        // Eğer email mevcut ve kullanıcı daha önce doğrulanmamışsa
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            var userDetails = this.userDetailsService.loadUserByUsername(email);
 
             // Token geçerli mi kontrolü
-            if (tokenService.isTokenValid(jwt, userDetails.getUsername())) {
+            if (tokenService.isTokenValid(jwt, userDetails.getUsername())) { // `isTokenValid` artık email kullanıyor
                 var authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -60,5 +60,4 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-
 }

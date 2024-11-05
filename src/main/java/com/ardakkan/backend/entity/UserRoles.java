@@ -1,5 +1,6 @@
 package com.ardakkan.backend.entity;
 
 public enum UserRoles {
-	CUSTOMER, SALESMANAGER, PRODUCTOWNER
+    ROLE_CUSTOMER, ROLE_SALES_MANAGER, ROLE_PRODUCT_OWNER
 }
+

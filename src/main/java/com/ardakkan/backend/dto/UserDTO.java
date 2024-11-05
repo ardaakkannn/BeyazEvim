@@ -5,7 +5,8 @@ import java.util.List;
 
 public class UserDTO {
     private Long id;
-    private String name;
+    private String FirstName;
+    private String LastName;
     private String email;
     private String address;
     private String phoneNumber;
@@ -23,15 +24,25 @@ public class UserDTO {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
+   
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getFirstName() {
+		return FirstName;
+	}
 
-    public String getEmail() {
+	public void setFirstName(String firstName) {
+		FirstName = firstName;
+	}
+
+	public String getLastName() {
+		return LastName;
+	}
+
+	public void setLastName(String lastName) {
+		LastName = lastName;
+	}
+
+	public String getEmail() {
         return email;
     }
 

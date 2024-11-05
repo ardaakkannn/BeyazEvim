@@ -13,10 +13,10 @@ public class TokenService {
 
     private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);  // Güçlü bir gizli anahtar oluşturuyoruz
 
-    // 1. JWT Token Üretimi (Kullanıcı adı ve rol ile)
-    public String generateToken(String username, String role) {
+    // 1. JWT Token Üretimi (Email ve rol ile)
+    public String generateToken(String email, String role) {
         return Jwts.builder()
-                .setSubject(username)  // Kullanıcının adı/kimliği
+                .setSubject(email)  // Kullanıcının email adresini subject olarak belirliyoruz
                 .claim("role", role)  // Token'e kullanıcı rolü ekliyoruz
                 .setIssuedAt(new Date())  // Token'in üretildiği tarih
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))  // 10 saatlik geçerlilik süresi
@@ -24,14 +24,14 @@ public class TokenService {
                 .compact();  // Token'i üret ve geri döndür
     }
 
-    // 2. JWT Token'dan Kullanıcı Adını Çıkartma
-    public String extractUsername(String token) {
+    // 2. JWT Token'dan Email Çıkartma
+    public String extractEmail(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)  // Token imzasını doğrulamak için gizli anahtarımızı kullanıyoruz
                 .build()
                 .parseClaimsJws(token)  // Token'i çözüp doğruluyoruz
                 .getBody()
-                .getSubject();  // Kullanıcı adını (subject) döner
+                .getSubject();  // Kullanıcı emailini (subject) döner
     }
 
     // 3. JWT Token'dan Kullanıcı Rolünü Çıkartma
@@ -45,9 +45,9 @@ public class TokenService {
     }
 
     // 4. Token'in Geçerli Olup Olmadığını Kontrol Etme
-    public boolean isTokenValid(String token, String username) {
-        String extractedUsername = extractUsername(token);  // Token'dan çıkarılan kullanıcı adı
-        return (extractedUsername.equals(username) && !isTokenExpired(token));  // Kullanıcı adı ve token süresi kontrolü
+    public boolean isTokenValid(String token, String email) {
+        String extractedEmail = extractEmail(token);  // Token'dan çıkarılan email
+        return (extractedEmail.equals(email) && !isTokenExpired(token));  // Email ve token süresi kontrolü
     }
 
     // 5. Token'in Süresinin Dolup Dolmadığını Kontrol Etme
