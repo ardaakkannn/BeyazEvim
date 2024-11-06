@@ -53,12 +53,12 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
-    // Belirli bir kategorideki tüm ürün modellerini getir
+ // Belirli bir kategorideki tüm ürün modellerini getir
     public List<ProductModel> getProductModelsByCategory(Long categoryId) {
-        Category category = getCategoryById(categoryId);
-        return category.getProductModels();
+        return productModelRepository.findByCategoryId(categoryId);
     }
-
+    
+    
     // Belirli bir kategoriye yeni ürün modeli ekle
     public ProductModel addProductModelToCategory(Long categoryId, ProductModel productModel) {
         Category category = getCategoryById(categoryId);

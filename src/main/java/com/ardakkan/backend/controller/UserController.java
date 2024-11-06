@@ -22,16 +22,7 @@ public class UserController {
         this.userService = userService;
     }
 
- // Yeni kullanıcı kaydı
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
-        try {
-            userService.registerUser(registerRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Kullanıcı başarıyla kaydedildi.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Kayıt başarısız: " + e.getMessage());
-        }
-    }
+
 
     // ID ile kullanıcıyı getir
     @GetMapping("/{id}")
