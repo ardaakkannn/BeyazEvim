@@ -1,5 +1,8 @@
 package com.ardakkan.backend.SecurityAndJWT;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticate(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<Map<String, Object>> authenticate(@RequestBody AuthRequest authRequest) {
         try {
             // Kullanıcıyı email ile yüklemeye çalışıyoruz
             var userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
@@ -44,7 +47,7 @@ public class AuthController {
             // Kullanıcı bulunduysa, şifreyi doğruluyoruz
             if (!passwordEncoder.matches(authRequest.getPassword(), userDetails.getPassword())) {
                 // Şifre yanlışsa hata mesajı döndür
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Şifre yanlış");
+            	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Şifre yanlış"));
             }
 
             // Şifre doğruysa, kimlik doğrulama işlemini gerçekleştiriyoruz
@@ -54,22 +57,32 @@ public class AuthController {
             // Rolü alıp token oluşturuyoruz
             String role = authentication.getAuthorities().iterator().next().getAuthority();
             String token = tokenService.generateToken(authRequest.getEmail(), role);
+            
+            // Kullanıcı bilgilerini yanıt olarak döndürmek için User nesnesini alıyoruz
+            User user = userService.findByEmail(authRequest.getEmail());
+
+            // Yanıt olarak token, isim ve soyisim gönderiyoruz
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("firstName", user.getFirstName());
+            response.put("lastName", user.getLastName());
+            response.put("userId", user.getId());
 
             // Token başarıyla oluşturuldu
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok(response);
 
         } catch (UsernameNotFoundException e) {
             // Kullanıcı bulunamadıysa, uygun hata mesajını döndür
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Bu email adresi ile kayıtlı kullanıcı bulunamadı");
+        	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Bu email adresi ile kayıtlı kullanıcı bulunamadı"));
         } catch (Exception e) {
             // Diğer hata durumları
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Giriş işlemi sırasında bir hata oluştu");
+        	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Giriş işlemi sırasında bir hata oluştu"));
         }
     }
 
     // Yeni kullanıcı kaydı
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequest registerRequest) {
         try {
             // Yeni kullanıcı kaydı yapıyoruz
             userService.registerUser(registerRequest);
@@ -80,10 +93,22 @@ public class AuthController {
 
             String role = authentication.getAuthorities().iterator().next().getAuthority();
             String token = tokenService.generateToken(registerRequest.getEmail(), role);
+            
+            
+            // Yeni kayıt olan kullanıcının bilgilerini alıyoruz
+            User user = userService.findByEmail(registerRequest.getEmail());
 
-            return ResponseEntity.status(HttpStatus.CREATED).body("Kullanıcı başarıyla kaydedildi. Token: " + token);
+            // Yanıt olarak token, isim ve soyisim gönderiyoruz
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("firstName", user.getFirstName());
+            response.put("lastName", user.getLastName());
+            response.put("userId", user.getId());
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Kayıt başarısız: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Kayıt başarısız: " + e.getMessage()));
         }
     }
     
@@ -96,6 +121,16 @@ public class AuthController {
     public ResponseEntity<String> getRegisterPage() {
         return ResponseEntity.ok("Register sayfasına yönlendirildiniz.");
     }
+    
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        // Kullanıcıyı frontend'de token'ı silmesi konusunda bilgilendiriyoruz
+        // Eğer JWT token kullanılıyorsa, backend'de ayrıca bir işlem yapmamıza gerek yoktur.
+        
+        // Alternatif olarak, JWT blacklisting gibi bir mekanizma kullanıyorsanız, burada token'i geçersiz kılabilirsiniz.
+        return ResponseEntity.ok("Çıkış yapıldı. Lütfen token'i istemci tarafından temizleyin.");
+    }
+
 }
 
 // AuthRequest sınıfı, login için gereken email ve password alanlarını içerir

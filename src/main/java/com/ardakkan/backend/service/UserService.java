@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -23,32 +25,23 @@ public class UserService {
     private final UserRepository userRepository;
     private final ProductModelRepository productModelRepository;
     private final PasswordEncoder passwordEncoder;
+    private final OrderService orderService;
 
     @Autowired
-    public UserService(UserRepository userRepository, ProductModelRepository productModelRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, ProductModelRepository productModelRepository, PasswordEncoder passwordEncoder, OrderService orderService ) {
         this.userRepository = userRepository;
         this.productModelRepository = productModelRepository;
         this.passwordEncoder = passwordEncoder;
+        this.orderService=orderService;
     }
 
     public void registerUser(RegisterRequest registerRequest) {
-        // Önce gerekli alanların dolu olup olmadığını kontrol ediyoruz
-        if (registerRequest.getFirstName() == null || registerRequest.getFirstName().isEmpty()) {
-            throw new IllegalArgumentException("First name boş olamaz.");
-        }
-        if (registerRequest.getLastName() == null || registerRequest.getLastName().isEmpty()) {
-            throw new IllegalArgumentException("Last name boş olamaz.");
-        }
-        if (registerRequest.getPassword() == null || registerRequest.getPassword().isEmpty()) {
-            throw new IllegalArgumentException("Password boş olamaz.");
-        }
-        if (registerRequest.getEmail() == null || registerRequest.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("Email boş olamaz.");
-        }
+        // Gerekli alanların dolu olup olmadığını kontrol ediyoruz
+        validateRegisterRequest(registerRequest);
 
         // Emailin zaten kayıtlı olup olmadığını kontrol ediyoruz
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new IllegalStateException("Email zaten kayıtlı.");
+            throw new IllegalStateException("Bu email adresi zaten kayıtlı.");
         }
 
         // Şifreyi encode ediyoruz
@@ -64,7 +57,26 @@ public class UserService {
 
         // Kullanıcıyı veritabanına kaydediyoruz
         userRepository.save(user);
+
+        // Kullanıcı oluşturulduktan sonra bir sepet (CART) statüsünde sipariş oluşturuyoruz
+        orderService.createNewCart(user.getId());
     }
+
+    private void validateRegisterRequest(RegisterRequest registerRequest) {
+        if (registerRequest.getFirstName() == null || registerRequest.getFirstName().isEmpty()) {
+            throw new IllegalArgumentException("İsim boş olamaz.");
+        }
+        if (registerRequest.getLastName() == null || registerRequest.getLastName().isEmpty()) {
+            throw new IllegalArgumentException("Soyisim boş olamaz.");
+        }
+        if (registerRequest.getPassword() == null || registerRequest.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Şifre boş olamaz.");
+        }
+        if (registerRequest.getEmail() == null || registerRequest.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("Email boş olamaz.");
+        }
+    }
+
 
 
     public UserDTO findUserById(Long id) {
@@ -79,6 +91,15 @@ public class UserService {
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        
+        
+    }
+    
+    
+    public User findByEmail(String email) {
+        // User bulunamazsa, bir hata fırlatabiliriz veya Optional olarak dönebiliriz
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + email));
     }
     
     public void updateWishlist(Long userId, List<Long> wishlistProductModelIds) {

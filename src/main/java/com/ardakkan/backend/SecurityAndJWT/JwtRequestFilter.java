@@ -29,7 +29,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // İzin verilen rotalar için JWT doğrulamasını atla
         String requestPath = request.getServletPath();
-        if (requestPath.startsWith("/login") || requestPath.startsWith("/register") || requestPath.startsWith("/homepage")|| requestPath.startsWith("/api")) {
+        if (requestPath.startsWith("/login") || requestPath.startsWith("/register") || requestPath.startsWith("/homepage")|| requestPath.startsWith("/api")|| requestPath.startsWith("/logout")) {
             filterChain.doFilter(request, response);
             return; // Bu isteği daha fazla filtreleme yapmadan devam ettiriyoruz
         }

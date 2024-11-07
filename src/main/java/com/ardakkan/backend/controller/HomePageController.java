@@ -11,7 +11,7 @@ import com.ardakkan.backend.service.ProductModelService;
 import com.ardakkan.backend.dto.ProductModelDTO;
 
 @RestController
-//@RequestMapping("/api") // Tüm endpointlerin "/api" ile başlaması için
+@RequestMapping("/api") // Tüm endpointlerin "/api" ile başlaması için
 public class HomePageController {
 
 	private final ProductModelService productModelService;

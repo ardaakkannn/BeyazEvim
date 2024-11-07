@@ -82,7 +82,7 @@ public class OrderService {
     
     
     // Yeni bir sepet (CART) oluşturma
-    private void createNewCart(Long userId) {
+    public void createNewCart(Long userId) {
         // Kullanıcının yeni bir sepet oluşturması
         Order newCart = new Order();
         newCart.setUser(userRepository.findById(userId)
