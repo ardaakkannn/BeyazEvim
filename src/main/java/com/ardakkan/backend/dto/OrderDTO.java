@@ -9,7 +9,7 @@ public class OrderDTO {
     private OrderStatus status;  
     private Double totalPrice;
     private Long userId;
-    private List<Long> orderItemIds;
+    private List<OrderItemDTO> orderItems;
 
     // Getter ve Setter'lar
     public Long getId() {
@@ -44,11 +44,13 @@ public class OrderDTO {
         this.userId = userId;
     }
 
-    public List<Long> getOrderItemIds() {
-        return orderItemIds;
-    }
+	public List<OrderItemDTO> getOrderItems() {
+		return orderItems;
+	}
 
-    public void setOrderItemIds(List<Long> orderItemIds) {
-        this.orderItemIds = orderItemIds;
-    }
+	public void setOrderItems(List<OrderItemDTO> orderItems) {
+		this.orderItems = orderItems;
+	}
+
+    
 }

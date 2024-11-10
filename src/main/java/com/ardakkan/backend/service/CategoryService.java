@@ -87,5 +87,13 @@ public class CategoryService {
         productModel.setCategory(category);
         return productModelRepository.save(productModel);
     }
+    
+  // Ana kategorileri getirme (parentCategory=null olanlar)
+    public List<Category> getRootCategories() {
+        return categoryRepository.findByParentCategoryIsNull();
+    }
+    
+   
+    
 }
 

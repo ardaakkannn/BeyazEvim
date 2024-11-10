@@ -1,9 +1,12 @@
 package com.ardakkan.backend.service;
 
 import com.ardakkan.backend.dto.OrderDTO;
+import com.ardakkan.backend.dto.OrderItemDTO;
 import com.ardakkan.backend.entity.Invoice;
 import com.ardakkan.backend.entity.Order;
+import com.ardakkan.backend.entity.OrderItem;
 import com.ardakkan.backend.entity.OrderStatus;
+import com.ardakkan.backend.entity.ProductModel;
 import com.ardakkan.backend.entity.User;
 import com.ardakkan.backend.repo.InvoiceRepository;
 import com.ardakkan.backend.repo.OrderRepository;
@@ -59,6 +62,18 @@ public class OrderService {
                 .map(this::convertToDTO)  // Her siparişi DTO'ya dönüştürüyoruz
                 .collect(Collectors.toList());
     }
+    
+    
+ // Kullanıcının tüm siparişlerini getirme - DTO döndürür
+    public List<OrderDTO> getOrdersByUserId(Long userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders.stream()
+                     .map(this::convertToDTO)  // Her siparişi DTO'ya dönüştürüyoruz
+                     .collect(Collectors.toList());
+    }
+
+    
+    
 
  // Sipariş güncelleme
     public Order updateOrder(Long id, Order updatedOrder) {
@@ -115,22 +130,42 @@ public class OrderService {
         }
         orderRepository.deleteById(id);
     }
+    
+    
+    public List<OrderItemDTO> getUserCart(Long userId) {
+        // Kullanıcının CART durumundaki siparişini bul
+        Order cartOrder = orderRepository.findByUserIdAndStatus(userId, OrderStatus.CART)
+                .orElseThrow(() -> new IllegalStateException("Sepet bulunamadı veya boş: " + userId));
 
- // Entity'yi DTO'ya dönüştürme işlemi
+        // Order'daki OrderItem'ları OrderItemDTO'ya dönüştür ve liste olarak döndür
+        return cartOrder.getOrderItems().stream()
+                .map(this::convertToOrderItemDTO)
+                .collect(Collectors.toList());
+    }
+
     private OrderDTO convertToDTO(Order order) {
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setId(order.getId());
-        orderDTO.setStatus(order.getStatus());  // Enum tipiyle status set ediliyor
+        orderDTO.setStatus(order.getStatus());
         orderDTO.setTotalPrice(order.getTotalPrice());
         orderDTO.setUserId(order.getUser().getId());
 
-        List<Long> orderItemIds = order.getOrderItems()
+        List<OrderItemDTO> orderItemDTOs = order.getOrderItems()
                 .stream()
-                .map(item -> item.getId())
+                .map(this::convertToOrderItemDTO)
                 .collect(Collectors.toList());
-        orderDTO.setOrderItemIds(orderItemIds);
+        orderDTO.setOrderItems(orderItemDTOs);
 
         return orderDTO;
     }
+
+    private OrderItemDTO convertToOrderItemDTO(OrderItem orderItem) {
+        OrderItemDTO orderItemDTO = new OrderItemDTO();
+        orderItemDTO.setOrderItemId(orderItem.getId());
+        orderItemDTO.setProductModelId(orderItem.getProductInstances().get(0).getProductModel().getId());
+        orderItemDTO.setQuantity(orderItem.getQuantity());
+        return orderItemDTO;
+    }
+
 
 }

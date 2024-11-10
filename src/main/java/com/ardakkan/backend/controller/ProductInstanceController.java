@@ -1,5 +1,6 @@
 package com.ardakkan.backend.controller;
 
+import com.ardakkan.backend.dto.ProductInstanceRequest;
 import com.ardakkan.backend.entity.ProductInstance;
 import com.ardakkan.backend.entity.ProductInstanceStatus;
 import com.ardakkan.backend.service.ProductInstanceService;
@@ -89,5 +90,14 @@ public class ProductInstanceController {
         ProductInstance updatedInstance = productInstanceService.updateStatus(id, newStatus);
         return new ResponseEntity<>(updatedInstance, HttpStatus.OK);
     }
+    // Toplu ekleme için
+    @PostMapping("/bulk")
+    public ResponseEntity<List<ProductInstance>> createProductInstances(
+            @RequestBody ProductInstanceRequest request) {
+        List<ProductInstance> createdInstances = productInstanceService.createProductInstances(
+                request.getProductInstances(), request.getProductModelId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdInstances);
+    }
+    
 }
 

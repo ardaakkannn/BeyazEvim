@@ -1,6 +1,7 @@
 package com.ardakkan.backend.controller;
 
 import com.ardakkan.backend.dto.OrderDTO;
+import com.ardakkan.backend.dto.OrderItemDTO;
 import com.ardakkan.backend.entity.Order;
 import com.ardakkan.backend.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,38 +22,60 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    // Yeni sipariş oluştur
-    @PostMapping
+ // Yeni sipariş oluşturma
+    @PostMapping("/create")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         Order createdOrder = orderService.createOrder(order);
-        return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+        return ResponseEntity.ok(createdOrder);
     }
 
-    // Tüm siparişleri listele
-    @GetMapping
-    public ResponseEntity<List<OrderDTO>> getAllOrders() {
-        List<OrderDTO> orders = orderService.getAllOrders();
-        return new ResponseEntity<>(orders, HttpStatus.OK);
-    }
-
-    // Belirli bir siparişi ID ile getir
+    // Sipariş ID'si ile sipariş bulma (DTO olarak döner)
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
         OrderDTO orderDTO = orderService.findOrderById(id);
-        return new ResponseEntity<>(orderDTO, HttpStatus.OK);
+        return ResponseEntity.ok(orderDTO);
     }
 
-    // Siparişi güncelle
+    // Tüm siparişleri listeleme (DTO olarak döner)
+    @GetMapping("/all")
+    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+        List<OrderDTO> orderDTOs = orderService.getAllOrders();
+        return ResponseEntity.ok(orderDTOs);
+    }
+
+    
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<OrderDTO>> getOrdersByUserId(@PathVariable Long userId) {
+        List<OrderDTO> orderDTOs = orderService.getOrdersByUserId(userId);
+        return ResponseEntity.ok(orderDTOs);
+    }
+
+    
+    // Kullanıcının sepetindeki ürünleri ve miktarlarını getirme
+    @GetMapping("/{userId}/cart")
+    public ResponseEntity<List<OrderItemDTO>> getUserCart(@PathVariable Long userId) {
+        List<OrderItemDTO> cartItems = orderService.getUserCart(userId);
+        return ResponseEntity.ok(cartItems);
+    }
+
+    // Sipariş güncelleme
     @PutMapping("/{id}")
     public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order updatedOrder) {
         Order order = orderService.updateOrder(id, updatedOrder);
-        return new ResponseEntity<>(order, HttpStatus.OK);
+        return ResponseEntity.ok(order);
     }
 
-    // Siparişi sil
+    // Yeni sepet oluşturma
+    @PostMapping("/user/{userId}/create-cart")
+    public ResponseEntity<Void> createNewCart(@PathVariable Long userId) {
+        orderService.createNewCart(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    // Sipariş silme
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok().build();
     }
 }

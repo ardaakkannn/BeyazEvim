@@ -71,6 +71,13 @@ public class CategoryController {
         List<ProductModel> productModels = categoryService.getProductModelsByCategory(categoryId);
         return ResponseEntity.ok(productModels);
     }
+    
+    // Ana kategorileri getiren endpoint
+    @GetMapping("/root")
+    public ResponseEntity<List<Category>> getRootCategories() {
+        List<Category> rootCategories = categoryService.getRootCategories();
+        return ResponseEntity.ok(rootCategories);
+    }
 
     // Belirli bir kategoriye yeni ürün modeli ekle
     @PostMapping("/{categoryId}/productModels")

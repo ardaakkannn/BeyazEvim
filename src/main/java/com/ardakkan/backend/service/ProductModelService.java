@@ -43,31 +43,42 @@ public class ProductModelService {
             existingProductModel.setDistributorInformation(productModelDetails.getDistributorInformation());
             existingProductModel.setDescription(productModelDetails.getDescription());
             existingProductModel.setPrice(productModelDetails.getPrice());
-            // Diğer alanlar da burada güncellenebilir
+            existingProductModel.setCategory(productModelDetails.getCategory());
             return productModelRepository.save(existingProductModel);
         } else {
             throw new RuntimeException("ProductModel not found with id: " + id);
         }
     }
 
-    // ID ile ProductModel getirme
-    public Optional<ProductModel> getProductModelById(Long id) {
-        return productModelRepository.findById(id);
+   
+    
+   // ID ile ProductModel getirme - DTO döndürür
+    public Optional<ProductModelDTO> getProductModelDTOById(Long id) {
+        return productModelRepository.findById(id)
+                .map(this::convertToDTO);
     }
+
 
     // Tüm ProductModel'leri getirme
     public List<ProductModel> getAllProductModels() {
         return productModelRepository.findAll();
     }
 
-    // Belirli bir marka ile arama
-    public List<ProductModel> getProductModelsByBrand(String brand) {
-        return productModelRepository.findByDistributorInformation(brand);
+ // Belirli bir marka ile arama - DTO döndürür
+    public List<ProductModelDTO> getProductModelsDTOByBrand(String brand) {
+        return productModelRepository.findByDistributorInformation(brand)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    // Ürün adı ile arama
-    public List<ProductModel> getProductModelsByName(String name) {
-        return productModelRepository.findByNameContainingIgnoreCase(name);
+
+ // Ürün adı ile arama - DTO döndürür
+    public List<ProductModelDTO> getProductModelsDTOByName(String name) {
+        return productModelRepository.findByNameContainingIgnoreCase(name)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     // ProductModel silme

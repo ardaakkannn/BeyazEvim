@@ -101,5 +101,15 @@ public class ProductInstanceService {
             throw new RuntimeException("ProductInstance not found with id: " + id);
         }
     }
+    //Toplu Product Instance Ekleme
+    public List<ProductInstance> createProductInstances(List<ProductInstance> productInstances, Long productModelId) {
+        ProductModel productModel = productModelRepository.findById(productModelId)
+                .orElseThrow(() -> new RuntimeException("ProductModel not found with id: " + productModelId));
+
+        productInstances.forEach(instance -> instance.setProductModel(productModel));
+        return productInstanceRepository.saveAll(productInstances);
+    }
+
+    
 }
 
