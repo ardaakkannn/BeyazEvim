@@ -1,16 +1,16 @@
 package com.ardakkan.backend.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+
+
+import jakarta.persistence.*;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
-@Table(name = "Category")  // Veritabanındaki tablo adı
+@Table(name = "Category")
 public class Category {
 
     @Id
@@ -20,17 +20,25 @@ public class Category {
     @Column(nullable = false, length = 45)
     private String categoryName;
 
-    // One-to-Many ilişki: Bir kategori birden fazla ürün modeline sahip olabilir
-    @OneToMany(mappedBy = "category")
-    private List<ProductModel> productModels;
+    // Alt kategoriler için self-referencing ilişki
+    @ManyToOne
+    @JsonBackReference
+    @JoinColumn(name = "parent_id")
+    private Category parentCategory;
+
+    @OneToMany(mappedBy = "parentCategory")
+    @JsonManagedReference
+    private List<Category> subCategories;
+
+   
 
     // Getter ve Setter'lar
     public Long getId() {
         return id;
     }
 
-    public void setId(Long idCategory) {
-        this.id = idCategory;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getCategoryName() {
@@ -41,12 +49,23 @@ public class Category {
         this.categoryName = categoryName;
     }
 
-    public List<ProductModel> getProductModels() {
-        return productModels;
+    public Category getParentCategory() {
+        return parentCategory;
     }
 
-    public void setProductModels(List<ProductModel> productModels) {
-        this.productModels = productModels;
+    public void setParentCategory(Category parentCategory) {
+        this.parentCategory = parentCategory;
     }
+
+    public List<Category> getSubCategories() {
+        return subCategories;
+    }
+
+    public void setSubCategories(List<Category> subCategories) {
+        this.subCategories = subCategories;
+    }
+
+    
 }
+
 

@@ -1,12 +1,12 @@
 package com.ardakkan.backend.dto;
 
-import com.ardakkan.backend.entity.OrderStatus;  // Enum'ı import et
+import com.ardakkan.backend.entity.OrderStatus;  
 
 import java.util.List;
 
 public class OrderDTO {
     private Long id;
-    private OrderStatus status;  // Status artık OrderStatus tipinde
+    private OrderStatus status;  
     private Double totalPrice;
     private Long userId;
     private List<Long> orderItemIds;

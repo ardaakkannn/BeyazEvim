@@ -15,6 +15,8 @@ import com.ardakkan.backend.repo.ProductInstanceRepository;
 import com.ardakkan.backend.repo.ProductModelRepository;
 import com.ardakkan.backend.entity.ProductInstance;
 import jakarta.transaction.Transactional;
+import com.ardakkan.backend.dto.ProductModelDTO;
+import com.ardakkan.backend.entity.ProductModel;
 
 @Service
 @Transactional
@@ -82,6 +84,61 @@ public class OrderItemService {
         // OrderItem'ı kaydet ve döndür
         return orderItemRepository.save(orderItem);
     }
+    
+    
+    
+    
+    public OrderItem removeProductFromCart(Long orderId, Long productModelId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalStateException("Order not found: " + orderId));
+
+        OrderItem orderItem = orderItemRepository
+                .findByOrderAndProductModelId(order, productModelId)
+                .orElseThrow(() -> new IllegalStateException("Product not found in cart: " + productModelId));
+
+        if (orderItem.getQuantity() > 1) {
+            orderItem.setQuantity(orderItem.getQuantity() - 1);
+            ProductInstance productInstance = orderItem.getProductInstances().remove(0);
+            productInstance.setStatus(ProductInstanceStatus.IN_STOCK);
+            productInstanceRepository.save(productInstance);
+            orderItemRepository.save(orderItem);
+        } else {
+            orderItem.getProductInstances().forEach(pi -> {
+                pi.setStatus(ProductInstanceStatus.IN_STOCK);
+                productInstanceRepository.save(pi);
+            });
+            orderItemRepository.delete(orderItem);
+        }
+
+        return orderItem;
+    }
+    
+    
+    public ProductModelDTO getProductModelByOrderItemId(Long orderItemId) {
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                .orElseThrow(() -> new IllegalStateException("OrderItem bulunamadı: " + orderItemId));
+        
+        // OrderItem içindeki ProductInstance'ların ilkini alıyoruz
+        ProductInstance productInstance = orderItem.getProductInstances().stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("OrderItem için ProductInstance bulunamadı: " + orderItemId));
+        
+        ProductModel productModel = productModelRepository.findById(productInstance.getProductModel().getId())
+                .orElseThrow(() -> new IllegalStateException("ProductModel bulunamadı: " + productInstance.getProductModel().getId()));
+        
+        return convertToDTO(productModel);
+    }
+
+    private ProductModelDTO convertToDTO(ProductModel productModel) {
+        ProductModelDTO dto = new ProductModelDTO();
+        dto.setId(productModel.getId());
+        dto.setName(productModel.getName());
+        dto.setDescription(productModel.getDescription());
+        dto.setPrice(productModel.getPrice());
+        return dto;
+    }
+    
+    
 
 
 }

@@ -21,12 +21,21 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    // Yeni bir kategori ekle
     @PostMapping
     public ResponseEntity<Category> addCategory(@RequestBody Category category) {
         Category newCategory = categoryService.addCategory(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
     }
+
+    
+    
+ // Belirli bir kategorinin alt kategorilerini getir
+    @GetMapping("/{categoryId}/subcategories")
+    public ResponseEntity<List<Category>> getSubCategories(@PathVariable Long categoryId) {
+        List<Category> subCategories = categoryService.getSubCategories(categoryId);
+        return ResponseEntity.ok(subCategories);
+    }
+
 
     // Tüm kategorileri getir
     @GetMapping

@@ -23,10 +23,32 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
         this.productModelRepository = productModelRepository;
     }
-
-    // Yeni bir kategori ekle
+    
+    
     public Category addCategory(Category category) {
+        if (category.getParentCategory() != null) {
+            // Eğer parentCategory null değilse, parentCategory'nin geçerli bir kategori olduğundan emin ol
+            Category parentCategory = getCategoryById(category.getParentCategory().getId());
+            category.setParentCategory(parentCategory);
+
+            // Alt kategoriyi üst kategorinin subCategories listesine ekle
+            List<Category> subCategories = parentCategory.getSubCategories();
+            subCategories.add(category);
+            parentCategory.setSubCategories(subCategories);
+
+            categoryRepository.save(parentCategory); // Üst kategoriyi günceller
+        } else {
+            // Eğer parentCategory null ise, bu kategori ana kategori olur
+            category.setParentCategory(null);
+        }
         return categoryRepository.save(category);
+    }
+
+
+    // Belirli bir kategorinin alt kategorilerini getir
+    public List<Category> getSubCategories(Long categoryId) {
+        Category parentCategory = getCategoryById(categoryId);
+        return parentCategory.getSubCategories();
     }
 
     // Tüm kategorileri getir

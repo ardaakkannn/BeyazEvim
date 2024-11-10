@@ -2,6 +2,7 @@ package com.ardakkan.backend.controller;
 
 
 
+import com.ardakkan.backend.dto.ProductModelDTO;
 import com.ardakkan.backend.entity.OrderItem;
 import com.ardakkan.backend.service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,26 @@ public class OrderItemController {
         this.orderItemService = orderItemService;
     }
 
-    // Belirli bir sipariş ve ürün modeli ile sepete ürün ekleme
-    @PostMapping("/add-to-cart")
-    public ResponseEntity<OrderItem> addProductToCart(
-            @RequestParam Long orderId,
-            @RequestParam Long productModelId) {
-        OrderItem addedOrderItem = orderItemService.addProductToCart(orderId, productModelId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(addedOrderItem);
+    
+ // Ürünü sepete ekleme
+    @PostMapping("/add")
+    public ResponseEntity<OrderItem> addProductToCart(@RequestParam Long orderId, @RequestParam Long productModelId) {
+        OrderItem orderItem = orderItemService.addProductToCart(orderId, productModelId);
+        return ResponseEntity.ok(orderItem);
+    }
+
+    // Ürünü sepetten kaldırma
+    @PostMapping("/remove")
+    public ResponseEntity<OrderItem> removeProductFromCart(@RequestParam Long orderId, @RequestParam Long productModelId) {
+        OrderItem orderItem = orderItemService.removeProductFromCart(orderId, productModelId);
+        return ResponseEntity.ok(orderItem);
+    }
+
+    // OrderItem ID'sine göre ProductModelDTO döndürme
+    @GetMapping("/{orderItemId}/product-model")
+    public ResponseEntity<ProductModelDTO> getProductModelByOrderItemId(@PathVariable Long orderItemId) {
+        ProductModelDTO productModelDTO = orderItemService.getProductModelByOrderItemId(orderItemId);
+        return ResponseEntity.ok(productModelDTO);
     }
 
 }
