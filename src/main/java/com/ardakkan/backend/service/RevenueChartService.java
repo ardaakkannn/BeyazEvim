@@ -199,6 +199,16 @@ public class RevenueChartService {
         }
     }
 
+    public byte[] generateMonthlyRevenuePng(JFreeChart chart, int width, int height) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            // JFreeChart → PNG formatına dönüştür
+            BufferedImage bufferedImage = chart.createBufferedImage(width, height);
+            ImageIO.write(bufferedImage, "png", baos);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to generate monthly revenue PNG", e);
+        }
+    }
    
 
 }

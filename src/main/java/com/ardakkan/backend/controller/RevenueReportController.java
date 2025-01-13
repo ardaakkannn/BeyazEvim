@@ -56,5 +56,41 @@ public class RevenueReportController {
             return ResponseEntity.badRequest().body(ex.getMessage().getBytes());
         }
     }
+    
+    @GetMapping("/monthly-revenue-png")
+    public ResponseEntity<byte[]> getMonthlyRevenuePng(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(name = "width", defaultValue = "600") int width,
+            @RequestParam(name = "height", defaultValue = "400") int height) {
+        try {
+            // LocalDate -> LocalDateTime
+            LocalDateTime startDateTime = startDate.atStartOfDay();
+            LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+            // 1) Veri hesapla
+            Map<String, Map<String, Double>> monthlyData =
+                    revenueChartService.calculateMonthlyData(startDateTime, endDateTime);
+
+            // 2) Chart oluştur
+            JFreeChart chart = revenueChartService.createMonthlyRevenueChart(monthlyData);
+
+            // 3) PNG oluştur
+            byte[] pngBytes = revenueChartService.generateMonthlyRevenuePng(chart, width, height);
+
+            // 4) Response (image/png)
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+            headers.setContentDispositionFormData("inline", "MonthlyRevenue.png");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pngBytes);
+
+        } catch (IllegalArgumentException ex) {
+            // Veri yok veya başka hata
+            return ResponseEntity.badRequest().body(ex.getMessage().getBytes());
+        }
+    }
 
 }

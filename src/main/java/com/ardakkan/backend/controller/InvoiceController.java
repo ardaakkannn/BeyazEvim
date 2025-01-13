@@ -1,5 +1,6 @@
 package com.ardakkan.backend.controller;
 
+import com.ardakkan.backend.dto.InvoiceDTO;
 import com.ardakkan.backend.entity.Invoice;
 import com.ardakkan.backend.service.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import org.springframework.http.MediaType;
 import org.springframework.http.HttpHeaders;
+
+import java.time.LocalDate;
 
 
 @RestController
@@ -40,22 +43,22 @@ public class InvoiceController {
 
     // ID'ye göre fatura bulma
     @GetMapping("/{id}")
-    public ResponseEntity<Invoice> findInvoiceById(@PathVariable Long id) {
-        Invoice invoice = invoiceService.findInvoiceById(id);
+    public ResponseEntity<InvoiceDTO> findInvoiceById(@PathVariable Long id) {
+        InvoiceDTO invoice = invoiceService.findInvoiceById(id);
         return ResponseEntity.ok(invoice);
     }
 
     // Tüm faturaları listeleme
     @GetMapping
-    public ResponseEntity<List<Invoice>> getAllInvoices() {
-        List<Invoice> invoices = invoiceService.getAllInvoices();
+    public ResponseEntity<List<InvoiceDTO>> getAllInvoices() {
+        List<InvoiceDTO> invoices = invoiceService.getAllInvoices();
         return ResponseEntity.ok(invoices);
     }
 
     // Belirli bir kullanıcıya göre faturaları bulma
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Invoice>> findInvoiceByUserId(@PathVariable Long userId) {
-        List<Invoice> invoices = invoiceService.findInvoiceByUserId(userId);
+    public ResponseEntity<List<InvoiceDTO>> findInvoiceByUserId(@PathVariable Long userId) {
+        List<InvoiceDTO> invoices = invoiceService.findInvoiceByUserId(userId);
         return ResponseEntity.ok(invoices);
     }
 
@@ -85,12 +88,25 @@ public class InvoiceController {
                 .body(pdfData);
     }
     
-    @GetMapping("/by-date-range")
-    public ResponseEntity<List<Invoice>> getInvoicesByDateRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-        List<Invoice> invoices = invoiceService.getInvoicesByDateRange(startDate, endDate);
-        return ResponseEntity.ok(invoices);
+ // Belirli bir LocalDate aralığında faturaları listeleme
+    @GetMapping("/invoices-by-date")
+    public ResponseEntity<List<InvoiceDTO>> getInvoicesByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        try {
+            // LocalDate -> LocalDateTime dönüşümü
+            LocalDateTime startDateTime = startDate.atStartOfDay();     // Örn: 2024-01-01T00:00:00
+            LocalDateTime endDateTime = endDate.atTime(23, 59, 59);    // Örn: 2024-12-31T23:59:59
+
+            // Faturaları servisten al
+            List<InvoiceDTO> invoices = invoiceService.getInvoicesByDateRange(startDateTime, endDateTime);
+
+            // Yanıtı döndür
+            return ResponseEntity.ok(invoices);
+        } catch (IllegalArgumentException ex) {
+            // Hatalı parametrelerde bad request döndür
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
 }

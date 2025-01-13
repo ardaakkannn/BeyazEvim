@@ -1,7 +1,10 @@
 package com.ardakkan.backend.service;
 
 import com.ardakkan.backend.entity.ProductModel;
+import com.ardakkan.backend.entity.User;
+import com.ardakkan.backend.dto.InvoiceDTO;
 import com.ardakkan.backend.entity.Invoice;
+import com.ardakkan.backend.entity.Order;
 import com.ardakkan.backend.entity.ProductInstance;
 import com.ardakkan.backend.repo.InvoiceRepository;
 import com.ardakkan.backend.repo.OrderRepository;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -42,37 +46,98 @@ public class InvoiceService {
         this.invoiceRepository = invoiceRepository;
     }
 
+    
+    /**
+     * Invoice (DTO) -> Entity dönüşümü
+     */
+    private Invoice mapToEntity(InvoiceDTO dto) {
+        Invoice invoice = new Invoice();
+        
+        invoice.setId(dto.getId());  // Update senaryosu varsa lazım olabilir
+        invoice.setTotalPrice(dto.getTotalPrice());
+        invoice.setCreatedAt(dto.getCreatedAt());
+        invoice.setDetails(dto.getDetails());
+        
+        // User set etme
+        if (dto.getUserId() != null) {
+            User user = new User();
+            user.setId(dto.getUserId());
+            invoice.setUser(user);
+        }
+        
+        // Order set etme
+        if (dto.getOrderId() != null) {
+            Order order = new Order();
+            order.setId(dto.getOrderId());
+            invoice.setOrder(order);
+        }
+        
+        return invoice;
+    }
+
+    /**
+     * Entity -> InvoiceDTO dönüşümü
+     */
+    private InvoiceDTO mapToDTO(Invoice invoice) {
+        InvoiceDTO dto = new InvoiceDTO();
+        
+        dto.setId(invoice.getId());
+        dto.setTotalPrice(invoice.getTotalPrice());
+        dto.setCreatedAt(invoice.getCreatedAt());
+        dto.setDetails(invoice.getDetails());
+        
+        // User ID ekle
+        if (invoice.getUser() != null) {
+            dto.setUserId(invoice.getUser().getId());
+        }
+        
+        // Order ID ekle
+        if (invoice.getOrder() != null) {
+            dto.setOrderId(invoice.getOrder().getId());
+        }
+        
+        return dto;
+    }
+
     // Fatura oluşturma
     public Invoice createInvoice(Invoice invoice) {
         return invoiceRepository.save(invoice);
     }
 
-    // ID'ye göre fatura bulma
-    public Invoice findInvoiceById(Long id) {
-        return invoiceRepository.findById(id)
+ // ID'ye göre fatura bulma
+    public InvoiceDTO findInvoiceById(Long id) {
+        Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Fatura bulunamadı: " + id));
+        return mapToDTO(invoice);
     }
 
-    // Tüm faturaları listeleme
-    public List<Invoice> getAllInvoices() {
-        return invoiceRepository.findAll();
+ // Tüm faturaları listeleme
+    public List<InvoiceDTO> getAllInvoices() {
+        List<Invoice> invoices = invoiceRepository.findAll();
+        return invoices.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
     
-   // Belirli bir LocalDateTime aralığında faturaları listeleme
-    public List<Invoice> getInvoicesByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+    // Belirli bir LocalDateTime aralığında faturaları listeleme
+    public List<InvoiceDTO> getInvoicesByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate == null || endDate == null) {
             throw new IllegalArgumentException("Başlangıç ve bitiş tarihleri boş olamaz.");
         }
         
-        return invoiceRepository.findByDateRange(startDate, endDate);
+        List<Invoice> invoices = invoiceRepository.findByDateRange(startDate, endDate);
+        return invoices.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
-
 
     // Kullanıcıya göre faturaları bulma
-    public List<Invoice> findInvoiceByUserId(Long userId) {
-        return invoiceRepository.findByUserId(userId);
+    public List<InvoiceDTO> findInvoiceByUserId(Long userId) {
+        List<Invoice> invoices = invoiceRepository.findByUserId(userId);
+        return invoices.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
-
     // Fatura güncelleme
     public Invoice updateInvoice(Long id, Invoice updatedInvoice) {
         Invoice existingInvoice = invoiceRepository.findById(id)
