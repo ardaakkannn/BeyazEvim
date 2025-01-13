@@ -6,5 +6,7 @@ public enum OrderStatus {
     SHIPPED,     // Kargoya verildi
     DELIVERED,   // Teslim edildi
     RETURNED,// İade edildi
-    CANCELED
+    CANCELED,
+    RETURN_REQUESTED,
+    RETURN_REJECTED
 }
