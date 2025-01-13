@@ -2,6 +2,7 @@ package com.ardakkan.backend.controller;
 
 
 
+import com.ardakkan.backend.dto.OrderItemDTO;
 import com.ardakkan.backend.dto.ProductModelDTO;
 import com.ardakkan.backend.entity.OrderItem;
 import com.ardakkan.backend.service.OrderItemService;
@@ -22,18 +23,18 @@ public class OrderItemController {
     }
 
     
- // Ürünü sepete ekleme
+    // Ürünü sepete ekleme
     @PostMapping("/add")
-    public ResponseEntity<OrderItem> addProductToCart(@RequestParam Long orderId, @RequestParam Long productModelId) {
-        OrderItem orderItem = orderItemService.addProductToCart(orderId, productModelId);
-        return ResponseEntity.ok(orderItem);
+    public ResponseEntity<OrderItemDTO> addProductToCart(@RequestParam Long orderId, @RequestParam Long productModelId) {
+        OrderItemDTO orderItemdto = orderItemService.addProductToCart(orderId, productModelId);
+        return ResponseEntity.ok(orderItemdto);
     }
 
     // Ürünü sepetten kaldırma
     @PostMapping("/remove")
-    public ResponseEntity<OrderItem> removeProductFromCart(@RequestParam Long orderId, @RequestParam Long productModelId) {
-        OrderItem orderItem = orderItemService.removeProductFromCart(orderId, productModelId);
-        return ResponseEntity.ok(orderItem);
+    public ResponseEntity<OrderItemDTO> removeProductFromCart(@RequestParam Long orderId, @RequestParam Long productModelId) {
+        OrderItemDTO orderItemDTO = orderItemService.removeProductFromCart(orderId, productModelId);
+        return ResponseEntity.ok(orderItemDTO);
     }
 
     // OrderItem ID'sine göre ProductModelDTO döndürme
@@ -42,6 +43,7 @@ public class OrderItemController {
         ProductModelDTO productModelDTO = orderItemService.getProductModelByOrderItemId(orderItemId);
         return ResponseEntity.ok(productModelDTO);
     }
+    
 
 }
 

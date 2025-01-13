@@ -23,7 +23,7 @@ public class HomePageController {
 
     @GetMapping("/homepage")
     public List<ProductModelDTO> getHomePageProducts() {
-        return productModelService.getRandomProductModels(); // Rastgele 16 ürünü döndür
+        return productModelService.getAllProductModelsDTO(); // Rastgele 16 ürünü döndür
     }
 }
 

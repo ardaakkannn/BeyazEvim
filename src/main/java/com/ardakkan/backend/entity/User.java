@@ -6,10 +6,15 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Column;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
+import jakarta.persistence.JoinColumn;
+
+
 
 @Entity
 @Table(name = "User")
@@ -52,9 +57,15 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Invoice> invoices;
 
-    // Kullanıcının favori ürünleri
-    @OneToMany
+    @ManyToMany
+    @JoinTable(
+        name = "user_wishlist",  // Name of the join table
+        joinColumns = @JoinColumn(name = "user_id"),  // Column referencing User entity
+        inverseJoinColumns = @JoinColumn(name = "product_id")  // Column referencing ProductModel entity
+    )
     private List<ProductModel> wishlist;
+
+   
 
     // Getter ve Setter'lar
     public Long getId() {

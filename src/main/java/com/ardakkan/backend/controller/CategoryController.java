@@ -1,5 +1,6 @@
 package com.ardakkan.backend.controller;
 
+import com.ardakkan.backend.dto.CategoryProductsDTO;
 import com.ardakkan.backend.entity.Category;
 import com.ardakkan.backend.entity.ProductModel;
 import com.ardakkan.backend.service.CategoryService;
@@ -29,7 +30,7 @@ public class CategoryController {
 
     
     
- // Belirli bir kategorinin alt kategorilerini getir
+    // Belirli bir kategorinin alt kategorilerini getir
     @GetMapping("/{categoryId}/subcategories")
     public ResponseEntity<List<Category>> getSubCategories(@PathVariable Long categoryId) {
         List<Category> subCategories = categoryService.getSubCategories(categoryId);
@@ -65,12 +66,14 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
-    // Belirli bir kategorideki tüm ürün modellerini getir
+    
     @GetMapping("/{categoryId}/productModels")
-    public ResponseEntity<List<ProductModel>> getProductModelsByCategory(@PathVariable Long categoryId) {
-        List<ProductModel> productModels = categoryService.getProductModelsByCategory(categoryId);
-        return ResponseEntity.ok(productModels);
+    public ResponseEntity<CategoryProductsDTO> getProductModelsAndBrandsByCategory(@PathVariable Long categoryId) {
+        CategoryProductsDTO categoryProductsDTO = categoryService.getProductModelsAndBrandsByCategory(categoryId);
+        return ResponseEntity.ok(categoryProductsDTO);
     }
+    
+   
     
     // Ana kategorileri getiren endpoint
     @GetMapping("/root")
@@ -86,5 +89,15 @@ public class CategoryController {
             @RequestBody ProductModel productModel) {
         ProductModel savedProductModel = categoryService.addProductModelToCategory(categoryId, productModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProductModel);
+    }
+    
+    @PutMapping("/{categoryId}/deactivate")
+    public ResponseEntity<String> deactivateCategory(@PathVariable Long categoryId) {
+        try {
+            categoryService.deactivateCategory(categoryId);
+            return ResponseEntity.ok("Category and its subcategories have been successfully deactivated.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 }

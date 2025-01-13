@@ -30,7 +30,8 @@ public class Category {
     @JsonManagedReference
     private List<Category> subCategories;
 
-   
+    @Column(nullable = false)
+    private boolean isActive = true;
 
     // Getter ve Setter'lar
     public Long getId() {
@@ -64,6 +65,16 @@ public class Category {
     public void setSubCategories(List<Category> subCategories) {
         this.subCategories = subCategories;
     }
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+    
+    
 
     
 }

@@ -1,10 +1,14 @@
 package com.ardakkan.backend.repo;
 
+import com.ardakkan.backend.entity.ProductModel;
 import com.ardakkan.backend.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -17,4 +21,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	boolean existsByFirstName(String firstName);
 	boolean existsByLastName(String lastName);
     boolean existsByEmail(String email);
+    List<User> findAllByWishlistContaining(ProductModel product);
+    @Query("SELECT u FROM User u JOIN u.wishlist w WHERE w.id = :productId")
+    List<User> findUsersByWishlistProduct(@Param("productId") Long productId);
+
 }

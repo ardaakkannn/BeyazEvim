@@ -4,6 +4,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
@@ -28,6 +32,10 @@ public class Comment {
 
     @Column(nullable = false)
     private Boolean approved;
+    
+    // Yeni eklenen tarih alanı
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdDate;
 
     // Many-to-One ilişki: Bir yorum bir kullanıcıya aittir
     @ManyToOne
@@ -95,5 +103,14 @@ public class Comment {
     public void setProductModel(ProductModel productModel) {
         this.productModel = productModel;
     }
+
+	public LocalDateTime getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(LocalDateTime createdDate) {
+		this.createdDate = createdDate;
+	}
+    
 }
 

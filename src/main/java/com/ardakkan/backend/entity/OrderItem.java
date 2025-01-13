@@ -8,7 +8,10 @@ import jakarta.persistence.Id;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.JoinColumn;
@@ -16,7 +19,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "OrderItem")
+@Table(name = "order_item")
 public class OrderItem {
 
     @Id
@@ -24,7 +27,7 @@ public class OrderItem {
     private Long id;
 
     @Column(nullable = false)
-    private Long productModelId;  
+    private Long productModelId;
 
     @Column(nullable = false)
     private Double unitPrice;
@@ -36,22 +39,24 @@ public class OrderItem {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
- // One-to-Many ilişki: Bir OrderItem, birden fazla ProductInstance içerebilir
-    @OneToMany
-    @JoinTable(
-        name = "order_item_product_instance",
-        joinColumns = @JoinColumn(name = "order_item_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_instance_id")
-    )
-    private List<ProductInstance> productInstances = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name = "order_item_product_instance", joinColumns = @JoinColumn(name = "order_item_id"))
+    @Column(name = "product_instance_id")
+    private List<Long> productInstanceIds = new ArrayList<>(); 
+    
+    
+    @ElementCollection
+    @CollectionTable(name = "order_item_returned_instances", joinColumns = @JoinColumn(name = "order_item_id"))
+    @Column(name = "product_instance_id")
+    private List<Long> returnedProductInstanceIds = new ArrayList<>();
 
     // Getter ve Setter'lar
     public Long getId() {
         return id;
     }
 
-    public void setId(Long idOrderItem) {
-        this.id = idOrderItem;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getProductModelId() {
@@ -86,11 +91,22 @@ public class OrderItem {
         this.order = order;
     }
 
-    public List<ProductInstance> getProductInstances() {
-        return productInstances;
+    public List<Long> getProductInstanceIds() {
+        return productInstanceIds;
     }
 
-    public void setProductInstances(List<ProductInstance> productInstances) {
-        this.productInstances = productInstances;
+    public void setProductInstanceIds(List<Long> productInstanceIds) {
+        this.productInstanceIds = productInstanceIds;
     }
+
+	public List<Long> getReturnedProductInstanceIds() {
+		return returnedProductInstanceIds;
+	}
+
+	public void setReturnedProductInstanceIds(List<Long> returnedProductInstanceIds) {
+		this.returnedProductInstanceIds = returnedProductInstanceIds;
+	}
+    
+    
+    
 }

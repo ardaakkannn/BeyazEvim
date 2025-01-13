@@ -12,6 +12,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.Enumerated;
@@ -32,7 +34,7 @@ public class Order {
     private OrderStatus status;
 
     @Column(nullable = false)
-    private Date orderDate;
+    private LocalDateTime orderDate;
 
     // Many-to-One ilişki: Bir kullanıcı birden fazla siparişe sahip olabilir
     @ManyToOne
@@ -67,11 +69,11 @@ public class Order {
 		this.status = status;
 	}
 
-	public Date getOrderDate() {
+	public LocalDateTime getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(Date orderDate) {
+    public void setOrderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;
     }
 

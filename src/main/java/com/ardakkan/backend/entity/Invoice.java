@@ -9,6 +9,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -23,7 +25,7 @@ public class Invoice {
     private Double totalPrice;
 
     @Column(nullable = false)
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Column(length = 345)
     private String details;
@@ -54,11 +56,11 @@ public class Invoice {
         this.totalPrice = totalPrice;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -85,5 +87,11 @@ public class Invoice {
     public void setOrder(Order order) {
         this.order = order;
     }
-}
 
+	@Override
+	public String toString() {
+		return "Invoice [id=" + id + ", totalPrice=" + totalPrice + ", createdAt=" + createdAt + ", details=" + details
+				+ ", user=" + user + ", order=" + order + "]";
+	}
+    
+}

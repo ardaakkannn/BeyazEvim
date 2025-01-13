@@ -67,6 +67,7 @@ public class AuthController {
             response.put("firstName", user.getFirstName());
             response.put("lastName", user.getLastName());
             response.put("userId", user.getId());
+            response.put("role", user.getRole());
 
             // Token başarıyla oluşturuldu
             return ResponseEntity.ok(response);
@@ -104,6 +105,7 @@ public class AuthController {
             response.put("firstName", user.getFirstName());
             response.put("lastName", user.getLastName());
             response.put("userId", user.getId());
+            response.put("role", user.getRole());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
             
