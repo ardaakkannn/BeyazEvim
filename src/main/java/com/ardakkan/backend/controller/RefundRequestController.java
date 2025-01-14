@@ -61,5 +61,10 @@ public class RefundRequestController {
         refundRequestService.approveRefundRequest(requestId, approved, userDetails);
         return ResponseEntity.ok(approved ? "Refund request approved." : "Refund request rejected.");
     }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<RefundRequest>> getRefundRequestsByUserId(@PathVariable Long userId) {
+        List<RefundRequest> refundRequests = refundRequestService.getRefundRequestsByUserId(userId);
+        return ResponseEntity.ok(refundRequests);
+    }
 }
 

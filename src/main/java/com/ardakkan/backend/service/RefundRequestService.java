@@ -215,6 +215,11 @@ public class RefundRequestService {
             return refundRequestRepository.findAll();
         }
     }
+    
+    @Transactional(readOnly = true)
+    public List<RefundRequest> getRefundRequestsByUserId(Long userId) {
+        return refundRequestRepository.findAllByOrderUserId(userId);
+    }
 
 }
 

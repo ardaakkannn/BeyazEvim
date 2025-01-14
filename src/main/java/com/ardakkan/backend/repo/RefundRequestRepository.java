@@ -17,5 +17,7 @@ public interface RefundRequestRepository extends JpaRepository<RefundRequest, Lo
 
 	 @Query("SELECT r FROM RefundRequest r WHERE r.requestedAt BETWEEN :startDate AND :endDate")
 	    List<RefundRequest> findByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+	 @Query("SELECT rr FROM RefundRequest rr WHERE rr.order.user.id = :userId")
+	    List<RefundRequest> findAllByOrderUserId(@Param("userId") Long userId);
 	}
 
