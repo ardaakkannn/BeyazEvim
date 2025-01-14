@@ -3,6 +3,7 @@ import com.ardakkan.backend.entity.Invoice;
 import com.ardakkan.backend.dto.OrderDTO;
 import com.ardakkan.backend.dto.OrderItemDTO;
 import com.ardakkan.backend.dto.ProductModelDTO;
+import com.ardakkan.backend.dto.RefundRequestDto;
 import com.ardakkan.backend.entity.*;
 import com.ardakkan.backend.repo.InvoiceRepository;
 import com.ardakkan.backend.repo.OrderItemRepository;
@@ -50,6 +51,23 @@ public class RefundRequestService {
         this.userRepository = userRepository;
         this.notificationService= notificationService;
     }
+    
+    private RefundRequestDto convertToDto(RefundRequest entity) {
+        RefundRequestDto dto = new RefundRequestDto();
+        dto.setId(entity.getId());
+        dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getId() : null);
+        dto.setOrderItemId(entity.getOrderItem() != null ? entity.getOrderItem().getId() : null);
+        dto.setProductModelId(entity.getProductModelId());
+        dto.setProductInstanceId(entity.getProductInstanceId());
+        dto.setStatus(entity.getStatus());
+        dto.setRequestedAt(entity.getRequestedAt());
+        dto.setApprovedOrRejectedAt(entity.getApprovedOrRejectedAt());
+        if (entity.getApprovedBy() != null) {
+            dto.setApprovedByUserId(entity.getApprovedBy().getId());
+        }
+        return dto;
+    }
+
 
     public void createRefundRequest(Long orderId, Long productModelId) {
         // Siparişi getir
